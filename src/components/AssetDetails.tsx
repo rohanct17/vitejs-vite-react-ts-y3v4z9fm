@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Asset } from '../App';
+import { Asset } from '../types/Asset';
 
 interface Props {
   asset: Asset | null;
