@@ -1,5 +1,5 @@
 import React from 'react';
-import  {Asset}  from '../App';
+import { Asset } from '../types/Asset';
 
 interface Props {
   assets: Asset[];
@@ -8,39 +8,48 @@ interface Props {
 }
 
 export default function AssetList({ assets, onDelete, onSelect }: Props) {
+  // Group assets by group name
+  const groupedAssets = assets.reduce((acc, asset) => {
+    const group = asset.group || 'Ungrouped';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(asset);
+    return acc;
+  }, {} as Record<string, Asset[]>);
+
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Asset List</h2>
-      <table className="w-full text-left border-collapse">
-        <thead className="bg-gray-700">
-          <tr>
-            <th className="p-2">Name</th>
-            <th className="p-2">Category</th>
-            <th className="p-2">Group</th>
-            <th className="p-2">Subgroup</th>
-            <th className="p-2">Status</th>
-            <th className="p-2">Assigned To</th>
-            <th className="p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {assets.map((asset) => (
-            <tr key={asset.id} className="border-t border-gray-600 hover:bg-gray-800">
-              <td className="p-2 text-blue-400 cursor-pointer" onClick={() => onSelect(asset)}>
-                {asset.name}
-              </td>
-              <td className="p-2">{asset.category}</td>
-              <td className="p-2">{asset.group}</td>
-              <td className="p-2">{asset.subgroup}</td>
-              <td className="p-2">{asset.status}</td>
-              <td className="p-2">{asset.assignedTo}</td>
-              <td className="p-2">
-                <button onClick={() => onDelete(asset.id)} className="text-red-500 hover:underline">🗑 Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold mb-2">Asset List by Group</h2>
+
+      {Object.entries(groupedAssets).map(([groupName, groupAssets]) => (
+        <div key={groupName} className="border p-4 rounded bg-gray-800">
+          <h3 className="text-lg font-semibold text-blue-300 mb-2">Group: {groupName}</h3>
+
+          <table className="w-full text-sm bg-gray-900 text-white border border-gray-700">
+            <thead>
+              <tr className="bg-gray-700">
+                <th className="px-2 py-1 text-left">Name</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groupAssets.map((asset) => (
+                <tr key={asset.id} className="border-t border-gray-700 hover:bg-gray-800">
+                  <td className="px-2 py-1 cursor-pointer text-blue-400" onClick={() => onSelect(asset)}>
+                    {asset.name}
+                  </td>
+                  <td>{asset.status}</td>
+                  <td>{asset.assignedTo}</td>
+                  <td>
+                    <button onClick={() => onDelete(asset.id)} className="text-red-500 hover:text-red-700">🗑</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 }
